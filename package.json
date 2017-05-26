@@ -10,9 +10,10 @@
     "redux-actions": "^2.0.2"
   },
   "devDependencies": {
-    "flow-bin": "^0.46.0",
+    "flow-bin": "^0.47.0",
+    "json-server": "^0.10.1",
     "react-redux": "^5.0.4",
-    "react-scripts": "1.0.4",
+    "react-scripts": "1.0.6",
     "redux": "^3.6.0",
     "redux-logger": "^3.0.1"
   },
@@ -21,6 +22,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "flow": "flow"
-  }
+    "flow": "flow",
+    "server": "json-server --watch db.json --port 3001"
+  },
+  "proxy": "http://localhost:3001"
 }

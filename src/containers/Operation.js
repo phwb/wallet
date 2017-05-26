@@ -1,23 +1,60 @@
+// @flow
 import React from 'react'
 import { array } from 'prop-types'
 import { connect } from 'react-redux'
 import { add } from '../actions/list'
 import { OPERATION_EXPENSE, OPERATION_INCOME, OPERATION_NAME } from '../constants'
 
-// TODO начать делать добавление + мини сервер для чтения/записи
-const Operation = props => {
-  const { accounts, categories } = props
-  const { dispatch } = props
+type OperationProps = {
+  accounts: [],
+  categories: [],
+  onAdd: Function
+}
 
-  // пока функицю добавления диспатчим как есть (в виде статики), потом может и на просы перенесу
-  const onAdd = () => dispatch(add(OPERATION_EXPENSE, 'cash', 'products', Date.now(), Math.round(Math.random() * 1000)))
+// TODO мини сервер для чтения/записи
+const Operation = (props: OperationProps) => {
+  const { accounts, categories } = props
+  const { onAdd } = props
+
+  let operationInput: HTMLSelectElement = null
+  let accountInput: HTMLSelectElement = null
+  let categoryInput: HTMLSelectElement = null
+  let dateInput: HTMLInputElement = null
+  let sumInput: HTMLInputElement = null
+  let noteInput: HTMLTextAreaElement = null
+
+  const addHandler = (e: Event): void => {
+    e.preventDefault()
+
+    const sum: number = sumInput.valueAsNumber
+    const date: Date = dateInput.valueAsDate
+
+    if (date === null) {
+      alert('Введите дату')
+      return
+    }
+
+    if (isNaN(sum)) {
+      alert('Введите сумму')
+      return
+    }
+
+    onAdd(
+      operationInput.value, // операция расход/доход
+      accountInput.value,   // счет списания
+      categoryInput.value,  // категория
+      date.getTime(),       // дата совершения операции
+      sum,                  // сумма
+      noteInput.value       // примечание
+    )
+  }
 
   return (
     <fieldset>
       <legend>
         Добавить
         {' '}
-        <select>
+        <select ref={ select => operationInput = select }>
           <option value={ OPERATION_EXPENSE }>{ OPERATION_NAME[ OPERATION_EXPENSE ] }</option>
           <option value={ OPERATION_INCOME }>{ OPERATION_NAME[ OPERATION_INCOME ] }</option>
         </select>
@@ -25,7 +62,7 @@ const Operation = props => {
       <label>
         Счет списания
         {' '}
-        <select>
+        <select ref={ select => accountInput = select }>
           { accounts.map(account => <option key={ account.id } value={ account.id }>{ account.name }</option>) }
         </select>
       </label>
@@ -33,24 +70,24 @@ const Operation = props => {
       <label>
         Категория
         {' '}
-        <select>
+        <select ref={ select => categoryInput = select }>
           { categories.map(category => <option key={ category.id } value={ category.id }>{ category.name }</option>) }
         </select>
       </label>
       <hr/>
       <label>
-        Дата <input type="date"/>
+        Дата <input ref={ input => dateInput = input } type="date" required />
       </label>
       <hr/>
       <label>
-        Сумма <input type="number"/>
+        Сумма <input ref={ input => sumInput = input } type="number" required />
       </label>
       <hr/>
       <label>
-        Примечание <textarea/>
+        Примечание <textarea ref={ input => noteInput = input } />
       </label>
       <hr/>
-      <button onClick={ () => onAdd() }>Добавить</button>
+      <button onClick={ addHandler }>Добавить</button>
     </fieldset>
   )
 }
@@ -65,6 +102,10 @@ const mapStateToProps = state => ({
   categories: state.categories.toArray()
 })
 
-const OperationContainer = connect(mapStateToProps)(Operation)
+const mapDispatchToProps = {
+  onAdd: add
+}
+
+const OperationContainer = connect(mapStateToProps, mapDispatchToProps)(Operation)
 
 export default OperationContainer

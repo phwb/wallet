@@ -6,8 +6,6 @@ import { App } from './containers/App'
 
 const store = configureStore()
 
-window.s = store
-
 render(
   <Provider store={ store }>
     <App/>
